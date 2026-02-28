@@ -84,7 +84,7 @@ th, td { border: 1px solid #333; padding: 10px 5px; text-align: center; }
 
 .score-box strong { font-size: 1.2rem; display: block; }
 .mini-bonus { background: gold; color: black; font-size: 0.6rem; padding: 1px 4px; border-radius: 3px; vertical-align: top; }
-.hist-card { width: 15px; margin: 1px; opacity: 0.7; }
+
 
 /* Boutons */
 .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
@@ -100,4 +100,95 @@ th, td { border: 1px solid #333; padding: 10px 5px; text-align: center; }
     .card-btn { width: 38px; }
     .card-hand { width: 50px; }
     .setup-container { padding: 1rem; }
+}
+
+/* Bulle de survol (Tooltip) */
+.tooltip-container {
+    position: relative;
+    cursor: help;
+}
+
+.tooltip-container::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 1000;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    border: 1px solid #444;
+}
+
+/* Flèche de la bulle */
+.tooltip-container::before {
+    content: "";
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.9) transparent transparent transparent;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 1000;
+}
+
+.tooltip-container:hover::after,
+.tooltip-container:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+.history {
+    margin-top: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px;
+}
+
+.hist-card { 
+    width: 18px; /* Taille miniature pour le tableau */
+    height: auto;
+    border-radius: 2px;
+    opacity: 0.8; 
+}
+
+/* Optionnel : agrandir légèrement au survol de la cellule */
+.score-box:hover .hist-card {
+    opacity: 1;
+    transform: scale(1.1);
+    transition: transform 0.2s;
+}
+
+/* Empêche l'affichage si l'attribut data-tooltip est vide ou absent */
+.tooltip-container[data-tooltip=""]::after,
+.tooltip-container[data-tooltip=""]::before {
+    display: none !important;
+}
+
+.lost-text {
+    color: var(--lose);
+    font-weight: bold;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+/* Sécurité supplémentaire : si l'attribut data-tooltip est absent ou vide, on cache la bulle */
+.tooltip-container:not([data-tooltip])::after,
+.tooltip-container:not([data-tooltip])::before,
+.tooltip-container[data-tooltip=""]::after,
+.tooltip-container[data-tooltip=""]::before {
+    display: none !important;
 }

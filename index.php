@@ -49,28 +49,57 @@ if (isset($_SESSION['game_started']) && !isset($_SESSION['winner'])) {
 
     if (isset($_GET['action'])) {
         if ($_GET['action'] == 'stop') {
-            $sum_digits = 0; $sum_specials = 0; $digit_count = 0; $has_mult = false;
-            foreach ($_SESSION['temp_cards'] as $c) {
-                if (is_numeric($c)) { 
-                    $sum_digits += (int)$c; 
-                    $digit_count++; 
-                } elseif (str_starts_with($c, 'plus-')) { 
-                    // Extraction du nombre sans conserver le tiret comme signe négatif
-                    $sum_specials += (int)abs(filter_var($c, FILTER_SANITIZE_NUMBER_INT)); 
-                } elseif ($c === 'mult-2') { 
-                    $has_mult = true; 
+            // Si on valide alors qu'il n'y a aucune carte, on traite comme une manche nulle (croix)
+            if (empty($_SESSION['temp_cards'])) {
+                $_SESSION['scores'][$currentPlayer][] = [
+                    'val' => 0, 
+                    'cards' => ['lost'], // Utilise l'image lost.png
+                    'bonus' => false,
+                    'detail' => null    // Pas de bulle
+                ];
+            } else {
+                $sum_digits = 0; $sum_specials = 0; $digit_count = 0; $has_mult = false;
+                foreach ($_SESSION['temp_cards'] as $c) {
+                    if (is_numeric($c)) { $sum_digits += (int)$c; $digit_count++; }
+                    elseif (str_starts_with($c, 'plus-')) { 
+                        $sum_specials += (int)abs(filter_var($c, FILTER_SANITIZE_NUMBER_INT)); 
+                    }
+                    elseif ($c === 'mult-2') { $has_mult = true; }
                 }
-            }
-            $finalScore = ($has_mult) ? ($sum_digits * 2) : $sum_digits;
-            $finalScore += $sum_specials;
-            $has_bonus = ($digit_count >= 7);
-            if ($has_bonus) $finalScore += 15;
 
-            $_SESSION['scores'][$currentPlayer][] = ['val' => $finalScore, 'cards' => $_SESSION['temp_cards'], 'bonus' => $has_bonus];
+                // Calcul du score
+                $finalScore = ($has_mult) ? ($sum_digits * 2) : $sum_digits;
+                $finalScore += $sum_specials;
+                $has_bonus = ($digit_count >= 7);
+                if ($has_bonus) $finalScore += 15;
+
+                // Construction du détail (bulle)
+                $calc_detail = "(" . $sum_digits . ($has_mult ? " x 2" : "") . ")";
+                if ($sum_specials > 0) $calc_detail .= " + " . $sum_specials;
+                if ($has_bonus) $calc_detail .= " + 15 (Flip7)";
+                $calc_detail .= " = " . $finalScore;
+
+                $_SESSION['scores'][$currentPlayer][] = [
+                    'val' => $finalScore, 
+                    'cards' => $_SESSION['temp_cards'], 
+                    'bonus' => $has_bonus,
+                    'detail' => $calc_detail
+                ];
+            }
             
             $total = array_sum(array_column($_SESSION['scores'][$currentPlayer], 'val'));
             if ($total >= $_SESSION['target_score']) { checkWinner(); }
             else { nextTurn(); }
+
+        } elseif ($_GET['action'] == 'lost') {
+            // Action PERDU : on force l'absence de bulle et l'image 'lost'
+            $_SESSION['scores'][$currentPlayer][] = [
+                'val' => 0, 
+                'cards' => ['lost'], 
+                'bonus' => false,
+                'detail' => null // Désactive la bulle
+            ];
+            nextTurn();
         } elseif ($_GET['action'] == 'lost') {
             $_SESSION['scores'][$currentPlayer][] = ['val' => 0, 'cards' => ['lost'], 'bonus' => false];
             nextTurn();
@@ -184,12 +213,21 @@ if (isset($_GET['reset'])) { session_destroy(); header("Location: index.php"); e
                         <?php foreach ($_SESSION['scores'] as $p_idx => $p_scores): ?>
                             <td>
                                 <?php if (isset($p_scores[$i])): ?>
-                                    <div class="score-box">
-                                        <strong><?= $p_scores[$i]['val'] ?> <?php if($p_scores[$i]['bonus']): ?><span class="mini-bonus">+15</span><?php endif; ?></strong>
+                                    <div class="score-box tooltip-container" 
+                                        <?= !empty($p_scores[$i]['detail']) ? 'data-tooltip="' . $p_scores[$i]['detail'] . '"' : '' ?>>
+                                        
+                                        <strong>
+                                            <?= $p_scores[$i]['val'] ?> 
+                                            <?php if($p_scores[$i]['bonus']): ?><span class="mini-bonus">+15</span><?php endif; ?>
+                                        </strong>
+
                                         <div class="history">
                                             <?php foreach ($p_scores[$i]['cards'] as $hc): ?>
-                                                <?php if ($hc === 'lost'): ?><span class="lost-text">✗</span>
-                                                <?php else: ?><img src="img/cards/<?= $hc ?>.png" class="hist-card"><?php endif; ?>
+                                                <?php if ($hc === 'lost'): ?>
+                                                    <span class="lost-text">✗</span>
+                                                <?php else: ?>
+                                                    <img src="img/cards/<?= $hc ?>.png" class="hist-card" alt="<?= $hc ?>">
+                                                <?php endif; ?>
                                             <?php endforeach; ?>
                                         </div>
                                     </div>
