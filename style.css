@@ -1,0 +1,26 @@
+body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: white; margin: 0; padding-bottom: 50px; }
+.deck { background: #2d2d2d; padding: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; sticky: top; }
+.card-btn { width: 55px; border-radius: 4px; transition: 0.2s; }
+.card-btn:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+
+.avatar { 
+    background: #007bff; padding: 8px 20px; border-radius: 25px; 
+    display: inline-block; font-weight: bold; position: relative;
+}
+.avatar a { color: white; text-decoration: none; margin-left: 10px; font-size: 1.2em; }
+
+.bonus-gold { 
+    background: linear-gradient(45deg, #ffd700, #b8860b); color: #000;
+    padding: 10px; border-radius: 10px; font-weight: bold; margin: 10px auto; width: fit-content;
+}
+
+.card-hand { width: 70px; margin: 5px; border: 2px solid transparent; }
+.card-hand:hover { border-color: #ff4444; filter: grayscale(0.5); }
+
+table { width: 90%; margin: 30px auto; border-collapse: collapse; background: #252525; }
+th, td { border: 1px solid #333; padding: 12px; text-align: center; }
+.total-row { background: #333; font-size: 1.4em; }
+
+.btn-win { background: #28a745; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; text-decoration: none; }
+.btn-lose { background: #dc3545; color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; }
+.controls { margin-top: 20px; display: flex; justify-content: center; gap: 20px; }

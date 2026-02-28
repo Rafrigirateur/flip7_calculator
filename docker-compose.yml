@@ -1,0 +1,9 @@
+services:
+  flip7-server:
+    image: php:8.2-apache
+    ports:
+      - "8380:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html
