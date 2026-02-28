@@ -51,9 +51,15 @@ if (isset($_SESSION['game_started']) && !isset($_SESSION['winner'])) {
         if ($_GET['action'] == 'stop') {
             $sum_digits = 0; $sum_specials = 0; $digit_count = 0; $has_mult = false;
             foreach ($_SESSION['temp_cards'] as $c) {
-                if (is_numeric($c)) { $sum_digits += (int)$c; $digit_count++; }
-                elseif (str_starts_with($c, 'plus-')) { $sum_specials += (int)filter_var($c, FILTER_SANITIZE_NUMBER_INT); }
-                elseif ($c === 'mult-2') { $has_mult = true; }
+                if (is_numeric($c)) { 
+                    $sum_digits += (int)$c; 
+                    $digit_count++; 
+                } elseif (str_starts_with($c, 'plus-')) { 
+                    // Extraction du nombre sans conserver le tiret comme signe négatif
+                    $sum_specials += (int)abs(filter_var($c, FILTER_SANITIZE_NUMBER_INT)); 
+                } elseif ($c === 'mult-2') { 
+                    $has_mult = true; 
+                }
             }
             $finalScore = ($has_mult) ? ($sum_digits * 2) : $sum_digits;
             $finalScore += $sum_specials;
